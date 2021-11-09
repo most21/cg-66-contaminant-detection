@@ -27,7 +27,7 @@ def read_fastq_files(files):
 
 if __name__ == "__main__":
     ## FASTA Tutorial ##
-    '''
+    
     # We can create a FASTA object for a particular file
     # Note: We also can pass in a list of FASTA file names and get back a list of FASTA objects
     f = "test_data/fasta_test.fa" # use whatever FASTA file you like to test this out
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     # You can get the raw string data via the get method
     genome = FA.get_data()
     print(genome[0:5])
-    '''
+
     print("\n----------------------\n")
 
     ## FASTQ Tutorial ##
