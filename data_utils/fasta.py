@@ -34,5 +34,5 @@ class FASTA(Dataset):
         return self.size
 
     def get_data(self):
-        """ Return string of FASTA data. """
+        """ Return raw string of FASTA data. """
         return self.data

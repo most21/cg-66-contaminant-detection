@@ -10,10 +10,11 @@ class FASTQ(Dataset):
                 "id": dataset.read_ids,
                 "seq": dataset.read_data,
                 "quality": dataset.read_qualities,
-                "all": [{"id": n, "seq": r, "quality": q} for n, r, q in zip(dataset.read_ids, dataset.read_data, dataset.read_qualities)]
+                "all": list(zip(dataset.read_ids, dataset.read_data, dataset.read_qualities))
                 }
             self._dataset = dataset
             self._idx = 0
+            self._series_label = series
             self._series = series_dict[series]
 
         def __next__(self):
@@ -21,8 +22,15 @@ class FASTQ(Dataset):
             if self._idx < len(self._series):
                 result = self._series[self._idx]
                 self._idx += 1
+
+                # If iterating over all 3 series, construct a dictionary return value
+                if self._series_label == "all":
+                    n, r, q = result
+                    result = {"id": n, "seq": r, "quality": q}
                 return result
-            self._dataset._iterator_series = "all" # reset iterator series to be "all" by default
+
+            # Once iteration is finished, reset iterator series to be "all" by default
+            self._dataset._iterator_series = "all"
             raise StopIteration
     ################## End of FASTQIterator nested class ###################
 
