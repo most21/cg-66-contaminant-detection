@@ -43,29 +43,7 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k):
             if mer in des_idx:
                 kmer_locs.append(des_idx[mer])
         #if all kmers are in the reference, check if they are all next to each other
-        if len(kmer_locs) == len(read_kmers):
-            for start in kmer_locs[0]:
-                is_in = 1
-            check = start + 1
-            for i in range(1,len(kmer_locs)):
-                if check in kmer_locs[i]:
-                    check = check + 1 
-                elif check not in kmer_locs[i]:
-                    is_in = 0    
-                    break
-            #if all looks good, increase the desired reference alligned reads count
-            if is_in == 1:
-                des_count = des_count + 1
-                break
-                
-    #check if the k_mers are in the contamination references
-    kmer_locs = []
-    for mer in read_kmers:
-        for idx in cont_idxs:
-            if mer in idx:
-                kmer_locs.append(idx[mer])
-            #if all kmers are in the reference, check if they are all next to each other
-        if len(kmer_locs) == len(read_kmers):
+        if len(kmer_locs) == len(read_kmers) and len(kmer_locs) > 0:
             for start in kmer_locs[0]:
                 is_in = 1
                 check = start + 1
@@ -73,16 +51,40 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k):
                     if check in kmer_locs[i]:
                         check = check + 1 
                     elif check not in kmer_locs[i]:
-                        is_in = 0       
+                        is_in = 0    
                         break
+                #if all looks good, increase the desired reference alligned reads count
                 if is_in == 1:
-                    cont_count = cont_count + 1
-                    in_cont = 1
+                    des_count = des_count + 1
+                    in_des = 1
                     break
+                
+        #check if the k_mers are in the contamination references
+        kmer_locs = []
+        for mer in read_kmers:
+            for idx in cont_idxs:
+                if mer in idx:
+                    kmer_locs.append(idx[mer])
+                #if all kmers are in the reference, check if they are all next to each other
+            ###check back at the indent spacing here
+            if len(kmer_locs) == len(read_kmers) and len(kmer_locs) > 0:
+                for start in kmer_locs[0]:
+                    is_in = 1
+                    check = start + 1
+                    for i in range(1,len(kmer_locs)):
+                        if check in kmer_locs[i]:
+                            check = check + 1 
+                        elif check not in kmer_locs[i]:
+                            is_in = 0       
+                            break
+                    if is_in == 1:
+                        cont_count = cont_count + 1
+                        in_cont = 1
+                        break
     
-    #check if the read was unassigned to either a desired or contamination
-    if in_des == 0 and in_cont == 0:
-        unas_count = unas_count + 1
+        #check if the read was unassigned to either a desired or contamination
+        if in_des == 0 and in_cont == 0:
+            unas_count = unas_count + 1
 
     #return a list of the counts of reads mapped to the desired reference, a contamination reference, or unassigned
     results = [des_count, cont_count, unas_count]
