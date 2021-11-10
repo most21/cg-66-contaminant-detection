@@ -59,28 +59,29 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k):
                     in_des = 1
                     break
                 
-        #check if the k_mers are in the contamination references
-        kmer_locs = []
-        for mer in read_kmers:
-            for idx in cont_idxs:
-                if mer in idx:
-                    kmer_locs.append(idx[mer])
-                #if all kmers are in the reference, check if they are all next to each other
-            ###check back at the indent spacing here
-            if len(kmer_locs) == len(read_kmers) and len(kmer_locs) > 0:
-                for start in kmer_locs[0]:
-                    is_in = 1
-                    check = start + 1
-                    for i in range(1,len(kmer_locs)):
-                        if check in kmer_locs[i]:
-                            check = check + 1 
-                        elif check not in kmer_locs[i]:
-                            is_in = 0       
+        #check if the k_mers are in the contamination references only if the read isn't in the desired ref
+        if in_des != 1:
+            kmer_locs = []
+            for mer in read_kmers:
+                for idx in cont_idxs:
+                    if mer in idx:
+                        kmer_locs.append(idx[mer])
+                    #if all kmers are in the reference, check if they are all next to each other
+                ###check back at the indent spacing here
+                if len(kmer_locs) == len(read_kmers) and len(kmer_locs) > 0:
+                    for start in kmer_locs[0]:
+                        is_in = 1
+                        check = start + 1
+                        for i in range(1,len(kmer_locs)):
+                            if check in kmer_locs[i]:
+                                check = check + 1 
+                            elif check not in kmer_locs[i]:
+                                is_in = 0       
+                                break
+                        if is_in == 1:
+                            cont_count = cont_count + 1
+                            in_cont = 1
                             break
-                    if is_in == 1:
-                        cont_count = cont_count + 1
-                        in_cont = 1
-                        break
     
         #check if the read was unassigned to either a desired or contamination
         if in_des == 0 and in_cont == 0:
