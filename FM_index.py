@@ -66,7 +66,59 @@ def reverseBwt(bw):
         rowi = first[c][0] + ranks[rowi]
     return t
 
+#########################################
+# Suffix array functions
+# https://louisabraham.github.io/notebooks/suffix_arrays.html
 
+from itertools import zip_longest, islice
+
+def to_int_keys_best(l):
+    """
+    l: iterable of keys
+    returns: a list with integer keys
+    """
+    seen = set()
+    ls = []
+    #print(len(l))
+    for k in range(0,len(l)):
+        
+        e = l[k]
+        if not e in seen:
+            ls.append(e)
+            seen.add(e)
+    ls.sort()
+    index = {v: i for i, v in enumerate(ls)}
+    return [index[l[j]] for j in range(0,len(l))]
+
+
+def suffix_array_inverse(s):
+    """
+    suffix array of s
+    O(n * log(n)^2)
+    """
+    n = len(s)
+    k = 1
+    line = to_int_keys_best(s)
+    while max(line) < n - 1:
+        line = to_int_keys_best(
+            [a * (n + 1) + b + 1
+             for (a, b) in
+             zip_longest(line, islice(line, k, None),
+                         fillvalue=-1)])
+        k <<= 1
+    return line    
+
+def final_sa(l):
+    """
+    Inverses sa from above
+    """
+    n = len(l)
+    ans = [0] * n
+    for i in range(n):
+        ans[l[i]] = i
+    return ans  
+
+print(final_sa(suffix_array_inverse("banana$")))
 
 ######################################
 #Functions I wrote
@@ -239,27 +291,17 @@ def queryBWT(pattern, index_table, bw):
             
             
     return len(next_range)
-           
-        
-            
-        
-    
-    
+
+
+
+
    
-m = modifiedRankBWT(b,3)
+#m = modifiedRankBWT(b,3)
 
-print(m)
+#print(m)
 
-print(queryBWT("abaa", m, b))
-
-
+#print(queryBWT("abaa", m, b))
 
 
 
-#def queryFM(bw):
-    #''' Given a bw and another string check if 
-
-
-#print(b)
-#print(reverseBwt(bwtViaBwm("Tomorrow_and_tomorrow_and_tomorrow$")))
 
