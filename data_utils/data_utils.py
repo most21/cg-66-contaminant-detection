@@ -27,36 +27,43 @@ def read_fastq_files(files):
 
 if __name__ == "__main__":
     ## FASTA Tutorial ##
-    
+
     # We can create a FASTA object for a particular file
     # Note: We also can pass in a list of FASTA file names and get back a list of FASTA objects
-    f = "test_data/fasta_test.fa" # use whatever FASTA file you like to test this out
+    f = "test_data/fasta_test2.fa" # use whatever FASTA file you like to test this out
     FA = read_fasta_files(f)
     print(FA) # printing a FASTA object displays a nice little summary of the data
 
-    # We can get the length of the FASTA file using the built-in len()
+    # We can get the number of fragments in the FASTA file using the built-in len()
     length = len(FA)
     print("\nLength = ", length)
 
-    # FASTA objects support efficient, 0-based indexing
-    first_base = FA[0] # returns the first character in the FASTA file
-    fifth_base = FA[4] # returns the 5th character in the FASTA file
-    print("First = ", first_base, "Fifth = ", fifth_base)
+    # FASTA objects support efficient, 0-based indexing. FA[frag_num][idx] returns a character
+    frag1 = FA[0] # returns a string containing the first fragment in the data
+    first_base = FA[0][0] # returns the first character in the first fragment of the FASTA file
+    print("First fragment = ", frag1)
+    print("First base = ", first_base)
 
-    # We can loop through the FASTA data using len() and indexing
-    for i in range(len(FA)):
-        base = FA[i]
-        print(i, base)
+    # We can loop through the FASTA using len() and indexing
+    for i in range(len(FA)): # loop over fragments
+        for j in range(len(FA[i])): # loop over bases
+            base = FA[i][j]
+            print(i, j, base)
+            break
         break
+    print()
 
     # FASTA objects are also iterable, so you can easily loop through them without knowing their internal representation
-    for i, base in enumerate(FA):
-        print(i, base)
+    for i, frag in enumerate(FA):
+        for j, base in enumerate(frag):
+            print(i, j, base)
+            break
         break
+    print()
 
-    # You can get the raw string data via the get method
+    # You can get the list of fragments via the get method
     genome = FA.get_data()
-    print(genome[0:5])
+    print(genome)
 
     print("\n----------------------\n")
 
