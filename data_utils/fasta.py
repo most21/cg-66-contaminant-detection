@@ -61,10 +61,3 @@ class FASTA(Dataset):
     def get_data(self):
         """ Return the raw FASTA data (list of strings). """
         return self.data
-
-if __name__ == "__main__":
-    #FASTA._read_file("./test_data/Streptococcus_thermophilus_CIRM65_bac.txt")
-    #FASTA._read_file("./test_data/fasta_test.fa")
-
-    FA = FASTA("./test_data/fasta_test2.fa")
-    print(len(FA))
