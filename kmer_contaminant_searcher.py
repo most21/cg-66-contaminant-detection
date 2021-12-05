@@ -3,7 +3,7 @@ from build_kmer_index import build_kmer_index
 
 def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
     #at some point want to include input for approximate match threshold
-    """Returns three lists containing which (one-indexed) reads allign to the desired reference, contaminant reference, or neither"""
+    """Returns three lists containing which (one-indexed) reads allign to the desired reference, a contaminant reference, or neither"""
    
 
     #make fastq object
@@ -60,7 +60,7 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
                 kmer_locs.append(des_idx[mer])
                 
         #Check for alignments to the desired reference 
-        if len(kmer_locs) >= len(read_kmers)-((k-1)*tolerance) and len(kmer_locs) > 0:
+        if len(kmer_locs) >= len(read_kmers)-((k)*tolerance) and len(kmer_locs) > 0:
             #need to check the reference and calculate the hamming distance each start, as well as k, 2k, ... and (tolerance)k before it
             for start in kmer_locs[0]:
                 starts = [start]
@@ -74,10 +74,14 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
                     compare = des_FA[strt:strt+len(read)]
                     for base_num in range(len(read)):
                         base = read[base_num]
-                        if base != compare[base_num]:
-                            num_mismatch += 1
-                        if num_mismatch > tolerance:
+                        if base_num >= len(compare):
+                            #num_mismatch = tolerance +1
                             break
+                        else:
+                            if base != compare[base_num]:
+                                num_mismatch += 1
+                            if num_mismatch > tolerance:
+                                break
                     if num_mismatch <= tolerance and which_read not in good_reads:
                         des_count = des_count + 1
                         in_des = 1
@@ -86,40 +90,44 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
                             unassigned_reads.remove(which_read)
                         break
                 
-        #check if the k_mers are in the contamination references only if the read isn't in the desired ref
-        if in_des != 1:
-            kmer_locs = []
-            for mer in read_kmers:
-                if mer in cont_idxs[0].keys():
-                    kmer_locs.append(cont_idxs[0][mer])
-            
-                #for idx in cont_idxs:
-                    #if mer in idx:
-                        #kmer_locs.append(idx[mer])
-                    #if all kmers are in the reference, check if they are all next to each other
-                ###Deleted code here(find in bottom cell)
-###need to add in aproximate matching with contminant reference
-            if len(kmer_locs) >= len(read_kmers)-((k-1)*tolerance) and len(kmer_locs) > 0: #filter which reads could potentially be a match by pigeonhole
-                new_starts = kmer_locs[0]
-                    #need to check the reference and calculate the hamming distance each start, as well as k, 2k, ... and (tolerance)k before it
-                    #need to compare the read to each read length section of the reference begining at each start point
-                for strt in new_starts:
-                    num_mismatch = 0
-                    compare = cont_FA[0][strt:strt+len(read)]
-                        
-                    for base_num in range(len(read)):
-                        base = read[base_num]
-                        if base != compare[base_num]:
-                            num_mismatch += 1
-                        if num_mismatch > tolerance:
-                            break
-                    if num_mismatch <= tolerance and which_read not in cont_reads:
-                        cont_count = cont_count + 1
-                        in_cont = 1
-                        cont_reads.append(which_read)
-                        if which_read in unassigned_reads:
-                            unassigned_reads.remove(which_read)
-                        break
+#check for each contaminant reference genome provided
+        for cont_idx in cont_idxs:
+            if in_des != 1:
+                kmer_locs = []
+                for mer in read_kmers:
+                    if mer in cont_idx.keys():
+                        kmer_locs.append(cont_idx[mer])
+
+            #approximate matching with contminant reference
+                if len(kmer_locs) >= len(read_kmers)-((k)*tolerance) and len(kmer_locs) > 0: #filter which reads could potentially be a match by pigeonhole
+                    new_starts = kmer_locs[0]
+                    print(new_starts)
+                        #need to check the reference and calculate the hamming distance each start, as well as k, 2k, ... and (tolerance)k before it
+                        #need to compare the read to each read length section of the reference begining at each start point
+                    for strt in new_starts:
+                        num_mismatch = 0
+                        compare = cont_FA[0][strt:strt+len(read)]
+                        print(compare)
+                        for base_num in range(len(read)):
+                            base = read[base_num]
+                        #to prevent checking  past edge of reference
+                            if base_num >= len(compare):
+                                #num_mismatch = tolerance +1
+                                break
+                            else:
+                                if base != compare[base_num]:
+                                    num_mismatch += 1
+                                if num_mismatch > tolerance:
+                                    break
+                                    
+               #record reads assigned to a contaminant
+                if num_mismatch <= tolerance and which_read not in cont_reads:
+                    cont_count = cont_count + 1
+                    in_cont = 1
+                    cont_reads.append(which_read)
+                    if which_read in unassigned_reads:
+                        unassigned_reads.remove(which_read)
+                    break
     
         #check if the read was unassigned to either a desired or contamination
         if in_des == 0 and in_cont == 0:
