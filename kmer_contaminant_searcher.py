@@ -101,13 +101,11 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
             #approximate matching with contminant reference
                 if len(kmer_locs) >= len(read_kmers)-((k)*tolerance) and len(kmer_locs) > 0: #filter which reads could potentially be a match by pigeonhole
                     new_starts = kmer_locs[0]
-                    print(new_starts)
                         #need to check the reference and calculate the hamming distance each start, as well as k, 2k, ... and (tolerance)k before it
                         #need to compare the read to each read length section of the reference begining at each start point
                     for strt in new_starts:
                         num_mismatch = 0
                         compare = cont_FA[0][strt:strt+len(read)]
-                        print(compare)
                         for base_num in range(len(read)):
                             base = read[base_num]
                         #to prevent checking  past edge of reference
