@@ -321,19 +321,34 @@ def locate_in_template(template, pattern):
     
     
 
-
-
-
-
-def locate_in_template1(template, pattern, factor):
-    '''Function to query the pattern in the template with SA with gaps'''
+def construct_fm(template, pattern, factor):
     b = bwtViaBwm(template)
     m = modifiedRankBWT(b,factor)
     ranks = queryBWT(pattern, m, b)
-    actual_indexes = []
+    
     sa = final_sa1(suffix_array_inverse(template),factor) 
     tots = totsBWT(b)
     f = firstColMod(tots)
+    return [b, m,ranks,f, sa]
+
+
+
+def locate_in_template1(fm):
+    '''Function to query the pattern in the template with SA with gaps'''
+    """b = bwtViaBwm(template)
+    m = modifiedRankBWT(b,factor)
+    ranks = queryBWT(pattern, m, b)
+    
+    sa = final_sa1(suffix_array_inverse(template),factor) 
+    tots = totsBWT(b)
+    """
+    b = fm[0]
+    m = fm[1]
+    ranks = fm[2]
+    f = fm[3]
+    sa = fm[4]
+    actual_indexes = []
+
     
 
     for i in range(len(ranks)):
@@ -377,7 +392,9 @@ def locate_in_template1(template, pattern, factor):
     
     
 def everything_combined(template, pattern, factor):
-    info = locate_in_template1(template, pattern, factor)
+    
+    fm = construct_fm(template, pattern, factor)
+    info = locate_in_template1(fm)
     print("The original template is: %s" % (template))
     print("The pattern is: %s" % (pattern))
     print("The positions in the template where pattern occurs: ", info[0])
