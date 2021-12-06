@@ -130,3 +130,10 @@ dmypy.json
 
 # Local testing files to ignore
 test_data/
+tinydataexample/
+cache/minhash_dslib
+cache/minhash15_100
+cache/minhash21_1000
+cache/minhash64_bit_21_1000
+minhash_chunks.py
+minhash_mine.py
