@@ -54,7 +54,8 @@ def kmer_engine(FQ, des_ref, cont_refs, k = 10, tolerance = 5): #requires the de
     count_good = []
     count_cont = []
     
-    for read in FQ:
+    for entry in FQ:
+        read = entry['seq']
         which_read += 1
         
         #keep track of where each read has been assigned
