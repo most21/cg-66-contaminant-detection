@@ -403,30 +403,52 @@ def locate_in_template1(fm,pattern):
 
 
 
-def fm_engine(fasta_objects, fastq_objects, factor):
+def fm_engine(fastas, cont_fastas, fastqs, factor):
 
-    #fasta_objects = read_fasta_files(fastas)
-    #fastq_objects = read_fastq_files(fastqs)
-
+    fasta_objects = read_fasta_files(fastas)
+    cont_fasta_objects = read_fasta_files(cont_fastas)
+    fastq_objects = read_fastq_files(fastqs)
+    
+    groupings = {"Desired": [], "Contaminated": [], 'Unassigned': []}
+    other = []
+    
     fms = []
     for fasta in fasta_objects:
         for i,template in enumerate(fasta):
 
             fms.append([fasta.ids[i], construct_fm(template, factor)])
+            
+    co_fms = []        
+    for fasta in cont_fasta_objects:
+        for i,template in enumerate(fasta):
+            co_fms.append([fasta.ids[i], construct_fm(template, factor)])
 
+      
     for fm in fms:
         for fastq in fastq_objects:
             for fastq_dict in fastq:
+              
                 pattern = fastq_dict['seq']
-                fastq_id = fastq_dict['id']
                 info = locate_in_template1(fm[1],pattern)
+                if info[1]> 0:
+                    groupings["Desired"].append(fastq_dict)
+                else:
+                    other.append(fastq_dict)
+    
+    for fm in co_fms:
+        for fastq_dict in other:
+            pattern = fastq_dict['seq']
+            info = locate_in_template1(fm[1],pattern)
+            if info[1]> 0:
+                groupings["Contaminated"].append(fastq_dict)
+            else:
+                groupings["Unassigned"].append(fastq_dict)
+    
+    
+    return groupings              
 
-                print("The fasta id: ", fm[0])
-                print("The pattern is: %s" % (fastq_id))
-                print("The positions in the template where pattern occurs: ", info[0])
-                print("The number of pattern occurences: ", info[1])
 
 
 
 
-#everything_combined(['tinydataexample/example1.fasta'],['tinydataexample/chr1_Mfermentans_8020_hiseq_reads_tinycut_R1.fastq'],10)
+print(fm_engine(['tinydataexample/noN_chr1_cut.fasta'],['tinydataexample/Mfermentansbac1_cut.fasta.fasta'],['tinydataexample/chr1_Mfermentans_8020_hiseq_reads_tinycut_R1.fastq'],10))
