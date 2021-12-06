@@ -5,8 +5,10 @@ def build_kmer_index(FA, k):
     """ Construct a basic kmer index from an input FASTA file and a kmer length. """
     #make an empty dictionary for the build_kmer_index
     #keys will be kmers and entries will be a list of where in the fasta the kmer starts
-    idx = {}
+    idx_list = [] #list to store all the indices created from a multi fastsa file
+    FA_list = [] #list to seperately store the FA's from a multi fasta file
     for frag in FA: # TODO: I (Matthew) added this to support multi-fasta files (data is a list of strings instead of 1 string)
+        idx = {}
         for i in range(len(frag)-k+1):
             mer = frag[i:i+k]
             #make new entries for new kmers
@@ -15,34 +17,25 @@ def build_kmer_index(FA, k):
             #append the location of repeated kmers to the list
             elif mer in idx:
                 idx[mer].append(i)
+        idx_list.append(idx)
+        FA_list.append(frag)
 
     #return the completed kmer index
-    return idx, FA
+    return idx_list, FA_list
 
-def kmer_engine(FQ, des_ref, cont_refs, k, tolerance):
-    #at some point want to include input for approximate match threshold
+def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired reference to be input as a single fasta file, contaminant can be multi fasta
+    #Inputs must be fastq and fasta objects, with integers for k and tolerance
     """Returns three lists containing which (one-indexed) reads allign to the desired reference, a contaminant reference, or neither"""
 
     #make indexes from desired references
-    otpt = build_kmer_index(d, k)
-    des_idx = otpt[0]
-    des_FA = otpt[1]
+    otpt = build_kmer_index(des_ref, k)
+    des_idx = otpt[0][0] #if the desired reference input is a multi fasta file, only the first one is considered
+    des_FA = otpt[1][0]
 
     #make indexes from contamination references
-    cont_idxs = []
-    cont_FA = []
-        #check if we have a list of contamination references
-    if type(cont_refs) is list:
-        for cont_ref_name in cont_refs:
-            otpt = build_kmer_index(cont_ref_name, k)
-            cont_idxs.append(otpt[0])
-            cont_FA.append(otpt[1])
-            #check if we have a single contamination reference
-    if type(cont_refs) is str:
-        otpt = build_kmer_index(cont_refs, k)
-        cont_idxs.append(otpt[0])
-        cont_FA.append(otpt[1])
-
+    otpt2 = build_kmer_index(cont_ref, k)
+    cont_idxs = otpt2[0]
+    cont_FA = otpt2[1]
 
     #set the counts of desired and contaminant reads
     des_count = 0
