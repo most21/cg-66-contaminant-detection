@@ -146,17 +146,6 @@ def make_kmers(dna, k):
     """ Generate list of k-mers from the given DNA string.  """
     return [dna[i:i + k] for i in range(len(dna) - k + 1)]
 
-# def containment(A, B):
-#     size_A = A.count()
-#     size_B = B.count()
-#
-#     union = A.copy()
-#     union.merge(B)
-#     size_union = union.count()
-#
-#     #print(size_A, size_B, size_union)
-#     return (size_A + size_B - size_union) / size_A
-
 def build_ref_sketches(fasta_objects, k, sketch_size, cache=True):
     """
         Given a list of FASTA objects, create a MinHash sketch for each one (or load existing sketch from cache).
@@ -180,7 +169,6 @@ def build_ref_sketches(fasta_objects, k, sketch_size, cache=True):
             print(f"[WARNING] Could not find cached sketch for '{filename}'. Building from scratch...")
 
         # Break each fragment in the FASTA file into chunks and each chunk into k-mers and add it to our MinHash sketch
-        #sketch = MinHash(num_perm=256)
         sketch = MinHash(sketch_size)
         for frag in fasta:
             # Break each fragment into kmers and create sketch
@@ -203,7 +191,11 @@ def build_ref_sketches(fasta_objects, k, sketch_size, cache=True):
 
 def classify_reads(fastq_obj, cont_ref_sketches, cont_ref_sketch_ids, des_ref_sketches, des_ref_sketch_ids, k, sketch_size):
     """ Label each read as contaminated, desired, or other. """
-    results = {"Contaminated": [], "Desired": [], "Unassigned": []}
+    results = {
+        "Contaminated": [None for i in range(len(fastq_obj))],
+        "Desired": [None for i in range(len(fastq_obj))],
+        "Unassigned": [None for i in range(len(fastq_obj))]
+    }
 
     # Create MinHash sketch for each read in the file using its k-mers
     for i, read in enumerate(fastq_obj):
@@ -221,11 +213,16 @@ def classify_reads(fastq_obj, cont_ref_sketches, cont_ref_sketch_ids, des_ref_sk
 
         # Compute max score (which reference this read likely came from)
         if mean_cont_score > mean_des_score:
-            results["Contaminated"].append(read)
+            results["Contaminated"][i] = read
         elif mean_cont_score < mean_des_score:
-            results["Desired"].append(read)
+            results["Desired"][i] = read
         else:
-            results["Unassigned"].append(read)
+            results["Unassigned"][i] = read
+
+    # Condense output lists to remove None values
+    results["Contaminated"] = [r for r in results["Contaminated"] if r is not None]
+    results["Desired"] = [r for r in results["Desired"] if r is not None]
+    results["Unassigned"] = [r for r in results["Unassigned"] if r is not None]
 
     return results
 
