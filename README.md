@@ -12,7 +12,8 @@ pip install -r requirements.txt
 python main.py ...
 ```
 
-- To run on a very small example, specify an engine (kmer, fm, sw, minhash) and run:
+- To run on a very small example, first unzip the tinydataexample.zip folder. Then specify an engine (kmer, fm, sw, minhash) and run:
 ```shell
+unzip tinydataexample.zip
 python main.py --cont-ref tinydataexample/Mfermentansbac1_cut.fasta --des-ref tinydataexample/noN_chr1_cut.fasta --query tinydataexample/chr1_Mfermentans_8020_hiseq_reads_tinycut_R1.fastq --engine <TODO: ENGINE>
 ```
