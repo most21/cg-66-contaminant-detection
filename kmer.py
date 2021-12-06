@@ -23,7 +23,7 @@ def build_kmer_index(FA, k):
     #return the completed kmer index
     return idx_list, FA_list
 
-def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired reference to be input as a single fasta file, contaminant can be multi fasta
+def kmer_engine(FQ, des_ref, cont_refs, k = 10, tolerance = 5): #requires the desired reference to be input as a single fasta file, contaminant can be multi fasta
     #Inputs must be fastq and fasta objects, with integers for k and tolerance
     """Returns three dictionaries containing which reads allign to the desired reference, a contaminant reference, or neither"""
 
