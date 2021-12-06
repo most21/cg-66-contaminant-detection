@@ -130,3 +130,4 @@ dmypy.json
 
 # Local testing files to ignore
 test_data/
+tinydataexample/

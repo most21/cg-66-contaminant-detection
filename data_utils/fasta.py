@@ -1,10 +1,10 @@
-from dataset import Dataset
+from data_utils.dataset import Dataset
 
 class FASTA(Dataset):
     def __init__(self, filename):
         """ Construct a FASTA Dataset object using the data in the given file. """
         # Check that filename has a proper FASTA extension
-        assert filename.endswith(".fasta") or filename.endswith(".fa")
+        assert filename.endswith(".fasta") or filename.endswith(".fa"), filename
 
         self.filename = filename
         self.data, self.ids = FASTA._read_file(filename)
@@ -34,7 +34,7 @@ class FASTA(Dataset):
                 cur_frag += line
 
         # Append final fragment
-        fragments.append(cur_frag)
+        fragments.append(cur_frag.upper())
 
         return fragments, names
 

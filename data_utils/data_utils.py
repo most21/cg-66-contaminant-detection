@@ -1,5 +1,7 @@
-from fasta import FASTA
-from fastq import FASTQ
+import pickle
+
+from data_utils.fasta import FASTA
+from data_utils.fastq import FASTQ
 
 def read_fasta_files(files):
     """
@@ -23,6 +25,16 @@ def read_fastq_files(files):
         return FASTQ(files)
     raise ValueError(f"Invalid argument type of {type(files)}. Must be str or list")
 
+def save_object_to_file(obj, filename):
+    """ Pickle a Python object so it can be loaded and re-used later. """
+    with open(filename, "wb") as f:
+        pickle.dump(obj, f)
+
+def load_object_from_file(filename):
+    """ Load a pickled object from disk. """
+    with open(filename, "rb") as f:
+        obj = pickle.load(f)
+    return obj
 
 
 if __name__ == "__main__":
