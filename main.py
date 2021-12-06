@@ -97,10 +97,7 @@ def main():
     engine = args.engine
     if engine == "kmer":
         print("Running k-mer index engine...\n")
-        k = -1 # TODO: what value should this be?
-        tol = 0 # TODO: what value should this be?
-        results = kmer_engine(FQ, des_FA, cont_FA, k, tol)
-        raise NotImplementedError("TODO: Implement kmer index engine")
+        results = kmer_engine(FQ, des_FA, cont_FA)
     elif engine == "fm":
         raise NotImplementedError("TODO: Implement FM index engine")
     elif engine == "sw":
