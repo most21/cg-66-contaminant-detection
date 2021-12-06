@@ -1,31 +1,33 @@
-from data_utils import read_fastq_files
-from build_kmer_index import build_kmer_index
+#from data_utils import read_fastq_files
+#from build_kmer_index import build_kmer_index
 
 def build_kmer_index(FA, k):
     """ Construct a basic kmer index from an input FASTA file and a kmer length. """
     #make an empty dictionary for the build_kmer_index
     #keys will be kmers and entries will be a list of where in the fasta the kmer starts
     idx = {}
-    for i in range(len(FA)-k+1):
-        mer = FA[i:i+k]
-        #make new entries for new kmers
-        if mer not in idx:
-            idx[mer] = [i]
-        #append the location of repeated kmers to the list
-        elif mer in idx:
-            idx[mer].append(i)
+    for frag in FA: # TODO: I (Matthew) added this to support multi-fasta files (data is a list of strings instead of 1 string)
+        for i in range(len(frag)-k+1):
+            mer = frag[i:i+k]
+            #make new entries for new kmers
+            if mer not in idx:
+                idx[mer] = [i]
+            #append the location of repeated kmers to the list
+            elif mer in idx:
+                idx[mer].append(i)
 
     #return the completed kmer index
-    return idx
+    return idx, FA
 
-def kmer_cont_search(FQ, des_ref, cont_refs, k, tolerance):
+def kmer_engine(FQ, des_ref, cont_refs, k, tolerance):
     #at some point want to include input for approximate match threshold
     """Returns three lists containing which (one-indexed) reads allign to the desired reference, a contaminant reference, or neither"""
 
-    #make index from desired reference
-    otpt = build_kmer_index(des_ref, k)
+    #make indexes from desired references
+    otpt = build_kmer_index(d, k)
     des_idx = otpt[0]
     des_FA = otpt[1]
+
     #make indexes from contamination references
     cont_idxs = []
     cont_FA = []
@@ -85,7 +87,7 @@ def kmer_cont_search(FQ, des_ref, cont_refs, k, tolerance):
                 #need to compare the read to each read length section of the reference begining at each start point
                 for strt in starts:
                     num_mismatch = 0
-                    compare = des_FA[strt:strt+len(read)]
+                    compare = des_FA[strt:strt+len(read)] # TODO: adapt this for multi-fasta
                     for base_num in range(len(read)):
                         base = read[base_num]
                         if base_num >= len(compare):
@@ -146,5 +148,5 @@ def kmer_cont_search(FQ, des_ref, cont_refs, k, tolerance):
             unas_count = unas_count + 1
 
     #return a list of the counts of reads mapped to the desired reference, a contamination reference, or unassigned
-    results = [good_reads, cont_reads, unassigned_reads]
-    return(results)
+    results = {"Desired": good_reads, "Contaminated": cont_reads, "Unassigned": unassigned_reads}
+    return results

@@ -4,8 +4,10 @@ import os
 
 from data_utils.data_utils import read_fasta_files, read_fastq_files
 
-from minhash import minhash_engine
+from kmer import kmer_engine
 from smithwaterman import sw_engine
+from minhash import minhash_engine
+
 
 def parse_args():
     """ Parse command line arguments. """
@@ -94,6 +96,10 @@ def main():
     # Run contaminant detection method based on the selected engine
     engine = args.engine
     if engine == "kmer":
+        print("Running k-mer index engine...\n")
+        k = -1 # TODO: what value should this be?
+        tol = 0 # TODO: what value should this be?
+        results = kmer_engine(FQ, des_FA, cont_FA, k, tol)
         raise NotImplementedError("TODO: Implement kmer index engine")
     elif engine == "fm":
         raise NotImplementedError("TODO: Implement FM index engine")
