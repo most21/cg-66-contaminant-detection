@@ -1,5 +1,5 @@
 # cg-66-contaminant-detection
-Computational Genomics Final Project - Group 66 - Contaminant Detection
+Computational Genomics Final Project - Group 66 - Contaminant Detection  
 Team Members: Eleanor Hilgart, Matthew Ost, Gabe Shatkin, & Alexey Solganik
 
 ## Install + Run
