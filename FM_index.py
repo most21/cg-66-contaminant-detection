@@ -402,17 +402,20 @@ def everything_combined(fastas, fastqs, factor):
     
     fms = []
     for fasta in fasta_objects:
-        print(fasta)
         for i,template in enumerate(fasta):
-            #print(template)
-            fms.append([fasta.id[i], construct_fm(template, factor)])
+
+            fms.append([fasta.ids[i], construct_fm(template, factor)])
         
     for fm in fms:
         for fastq in fastq_objects:
-            for idx, pattern, _ in fastq('all'):
+            for fastq_dict in fastq:
+                pattern = fastq_dict['seq']
+                fastq_id = fastq_dict['id']
+                #print(fast)
                 info = locate_in_template1(fm[1],pattern)
+                
                 print("The fasta id: ", fm[0])
-                print("The pattern is: %s" % (idx))
+                print("The pattern is: %s" % (fastq_id))
                 print("The positions in the template where pattern occurs: ", info[0])
                 print("The number of pattern occurences: ", info[1])
     
