@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Nov 29 17:00:35 2021
+
+@author: eleanorhilgart
+"""
+import numpy
+
+def cost(xc, yc):
+# Cost function
+    if xc == yc: return 4 # match
+    if xc == '-' or yc == '-': return -6 # gap
+    return -4
+
+def smithWaterman(x, y, s):
+# Smith Waterman from Lecture
+    V = numpy.zeros((len(x)+1, len(y)+1), dtype=int)
+    for i in range(1, len(x)+1):
+        for j in range(1, len(y)+1):
+            V[i, j] = max(V[i-1, j-1] + s(x[i-1], y[j-1]),
+                          V[i-1, j  ] + s(x[i-1], '-'),
+                          V[i  , j-1] + s('-',    y[j-1]),
+                          0)
+    maxlastrow = V.max(axis = 1)[-1]
+    #changed to get the max of the last row as required for read alignment
+    return V, maxlastrow
+
+def sw_engine(fq, humFASTAs, contamFASTAs):
+    ''' Iterate over reads, comparing to references (provided in lists), and return dictionary
+    of read ids sorted by whether the reads map to human, contaminant, or ambiguous '''
+    # read reference files
+    #humFASTAs = read_fasta_files(humfhs)
+    #contamFASTAs = read_fasta_files(contamfhs)
+    #fq = read_fastq_files(readfh)
+
+
+    detection = {'Contaminated': [], 'Desired': [], 'Unassigned': []}
+
+
+    for val in fq:
+        seqid = val['id']
+
+        contamvals = []
+        humvals = []
+
+        for conFA in contamFASTAs:
+            contam = conFA.get_data()
+            for a in contam:
+                contamSW, topcontamval = smithWaterman(val['seq'], a, cost)
+                contamvals.append(topcontamval)
+
+        for humFA in humFASTAs:
+            chrom = humFA.get_data()
+            for b in chrom:
+                humSW, tophumval = smithWaterman(val['seq'], b, cost)
+                humvals.append(tophumval)
+
+        bestcontam = max(contamvals)
+        besthum = max(humvals)
+
+        if bestcontam > besthum:
+            detection['Contaminated'].append(val)
+        elif bestcontam < besthum:
+            detection['Desired'].append(val)
+        elif bestcontam == besthum:
+            detection['Unassigned'].append(val)
+
+    return detection
