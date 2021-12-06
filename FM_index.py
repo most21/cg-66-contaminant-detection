@@ -411,49 +411,13 @@ def everything_combined(fastas, fastqs, factor):
             for fastq_dict in fastq:
                 pattern = fastq_dict['seq']
                 fastq_id = fastq_dict['id']
-                #print(fast)
                 info = locate_in_template1(fm[1],pattern)
                 
                 print("The fasta id: ", fm[0])
                 print("The pattern is: %s" % (fastq_id))
                 print("The positions in the template where pattern occurs: ", info[0])
                 print("The number of pattern occurences: ", info[1])
-    
 
-        
-        
-        
-        
-    
-
-    
-""" 
-
-with open("tinydataexample/example1.fasta", "r") as file:
-    contents = ""
-    for readline in file:
-        if readline[0] != '>':
-            line_strip = readline.replace('\n', "")
-            contents += line_strip
-
-
-t = contents + '$'
-print("READ THE CONTENTS IN")
-
-with open("tinydataexample/chr1_Mfermentans_8020_hiseq_reads_tinycut_R1.fastq copy", "r") as file:
-    contents = ""
-    for readline in file:
-        if readline[0] != '>':
-            line_strip = readline.replace('\n', "")
-            contents += line_strip
-"""
-
-
-
-
-
-
-#print(locate_in_template(t,patterni))
 
 
 
