@@ -1,14 +1,28 @@
 from data_utils import read_fastq_files
 from build_kmer_index import build_kmer_index
 
-def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
+def build_kmer_index(FA, k):
+    """ Construct a basic kmer index from an input FASTA file and a kmer length. """
+    #make an empty dictionary for the build_kmer_index
+    #keys will be kmers and entries will be a list of where in the fasta the kmer starts
+    idx = {}
+    for i in range(len(FA)-k+1):
+        mer = FA[i:i+k]
+        #make new entries for new kmers
+        if mer not in idx:
+            idx[mer] = [i]
+        #append the location of repeated kmers to the list
+        elif mer in idx:
+            idx[mer].append(i)
+
+    #return the completed kmer index
+    return idx
+
+def kmer_cont_search(FQ, des_ref, cont_refs, k, tolerance):
     #at some point want to include input for approximate match threshold
     """Returns three lists containing which (one-indexed) reads allign to the desired reference, a contaminant reference, or neither"""
-   
 
-    #make fastq object
-    FQ = read_fastq_files(fq_name)
-    #make index from desired reference 
+    #make index from desired reference
     otpt = build_kmer_index(des_ref, k)
     des_idx = otpt[0]
     des_FA = otpt[1]
@@ -26,17 +40,17 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
         otpt = build_kmer_index(cont_refs, k)
         cont_idxs.append(otpt[0])
         cont_FA.append(otpt[1])
-        
-        
+
+
     #set the counts of desired and contaminant reads
     des_count = 0
     cont_count = 0
     unas_count = 0
-    
-    
+
+
     #start with exact match, but want to consider approximate later
 
-    #look at each read in the fastq file. 
+    #look at each read in the fastq file.
     #Using kmer method, try to align it to the desired and contaminant references
     which_read = 0 #keep track of which read we're on
     unassigned_reads = [] #keep track of which reads have been assigned to what
@@ -58,8 +72,8 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
         for mer in read_kmers:
             if mer in des_idx:
                 kmer_locs.append(des_idx[mer])
-                
-        #Check for alignments to the desired reference 
+
+        #Check for alignments to the desired reference
         if len(kmer_locs) >= len(read_kmers)-((k)*tolerance) and len(kmer_locs) > 0:
             #need to check the reference and calculate the hamming distance each start, as well as k, 2k, ... and (tolerance)k before it
             for start in kmer_locs[0]:
@@ -67,7 +81,7 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
                 for i in range(tolerance):
                     if starts[len(starts)-1] - k >= 0:
                         starts.append(starts[len(starts)-1] - k)
-                        
+
                 #need to compare the read to each read length section of the reference begining at each start point
                 for strt in starts:
                     num_mismatch = 0
@@ -89,7 +103,7 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
                         if which_read in unassigned_reads:
                             unassigned_reads.remove(which_read)
                         break
-                
+
 #check for each contaminant reference genome provided
         for cont_idx in cont_idxs:
             if in_des != 1:
@@ -117,7 +131,7 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
                                     num_mismatch += 1
                                 if num_mismatch > tolerance:
                                     break
-                                    
+
                #record reads assigned to a contaminant
                 if num_mismatch <= tolerance and which_read not in cont_reads:
                     cont_count = cont_count + 1
@@ -126,7 +140,7 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
                     if which_read in unassigned_reads:
                         unassigned_reads.remove(which_read)
                     break
-    
+
         #check if the read was unassigned to either a desired or contamination
         if in_des == 0 and in_cont == 0:
             unas_count = unas_count + 1
@@ -134,4 +148,3 @@ def kmer_cont_search(fq_name, des_ref, cont_refs, k, tolerance):
     #return a list of the counts of reads mapped to the desired reference, a contamination reference, or unassigned
     results = [good_reads, cont_reads, unassigned_reads]
     return(results)
-            

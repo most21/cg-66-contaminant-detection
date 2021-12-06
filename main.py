@@ -5,6 +5,7 @@ import os
 from data_utils.data_utils import read_fasta_files, read_fastq_files
 
 from minhash import minhash_engine
+from smithwaterman import sw_engine
 
 def parse_args():
     """ Parse command line arguments. """
@@ -58,6 +59,7 @@ def get_fasta_files_from_arg(args):
 #     return size
 
 def write_clean_fastq_file(filename, results):
+    """ Write a FASTQ file without the contamintated reads. """
     filename_no_ext = "".join(filename.split(".")[:-1])
     with open(filename_no_ext + "_clean.fastq", "w") as f:
         output = ""
@@ -95,8 +97,9 @@ def main():
         raise NotImplementedError("TODO: Implement kmer index engine")
     elif engine == "fm":
         raise NotImplementedError("TODO: Implement FM index engine")
-    elif engine == "sq":
-        raise NotImplementedError("TODO: Implement Smith-Waterman engine")
+    elif engine == "sw":
+        print("Running Smith-Waterman engine...\n")
+        results = sw_engine(FQ, des_FA, cont_FA)
     elif engine == "minhash":
         print("Running MinHash engine...\n")
         results = minhash_engine(cont_FA, des_FA, FQ)

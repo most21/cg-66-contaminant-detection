@@ -3,11 +3,8 @@
 #import desired functions from data_utils
 from data_utils import read_fasta_files
 
-def build_kmer_index(fasta_name, k):
+def build_kmer_index(FA, k):
     """ Construct a basic kmer index from an input FASTA file and a kmer length. """
-    #import the desired fasta file and make a fasta object using the data utils function
-    FA = read_fasta_files(fasta_name)
-
     #make an empty dictionary for the build_kmer_index
     #keys will be kmers and entries will be a list of where in the fasta the kmer starts
     idx = {}
