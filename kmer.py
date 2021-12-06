@@ -29,8 +29,8 @@ def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired ref
 
     #make indexes from desired references
     otpt = build_kmer_index(des_ref, k)
-    des_idx = otpt[0][0] #if the desired reference input is a multi fasta file, only the first one is considered
-    des_FA = otpt[1][0]
+    des_idxs = otpt[0]
+    des_FAs = otpt[1]
 
     #make indexes from contamination references
     otpt2 = build_kmer_index(cont_ref, k)
@@ -62,35 +62,37 @@ def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired ref
         for i in range(len(read)-k+1):
             read_kmers.append(read[i:i+k])
 
-        #check if the k_mers are in the desired reference
-        kmer_locs = []
-        for mer in read_kmers:
-            if mer in des_idx:
-                kmer_locs.append(des_idx[mer])
+        idx_count = 0   
+        for des_idx in des_idxs:
+            #check if the k_mers are in the desired reference
+            kmer_locs = []
+            for mer in read_kmers:
+                if mer in des_idx:
+                    kmer_locs.append(des_idx[mer])
 
-        #Check for alignments to the desired reference
-        if len(kmer_locs) >= len(read_kmers)-((k)*tolerance) and len(kmer_locs) > 0:
-            #need to check the reference and calculate the hamming distance each start, as well as k, 2k, ... and (tolerance)k before it
-            for start in kmer_locs[0]:
-                starts = [start]
-                for i in range(tolerance):
-                    if starts[len(starts)-1] - k >= 0:
-                        starts.append(starts[len(starts)-1] - k)
+            #Check for alignments to the desired reference
+            if len(kmer_locs) >= len(read_kmers)-((k)*tolerance) and len(kmer_locs) > 0:
+                #need to check the reference and calculate the hamming distance each start, as well as k, 2k, ... and (tolerance)k before it
+                for start in kmer_locs[0]:
+                    starts = [start]
+                    for i in range(tolerance):
+                        if starts[len(starts)-1] - k >= 0:
+                            starts.append(starts[len(starts)-1] - k)
 
-                #need to compare the read to each read length section of the reference begining at each start point
-                for strt in starts:
-                    num_mismatch = 0
-                    compare = des_FA[strt:strt+len(read)] # TODO: adapt this for multi-fasta
-                    for base_num in range(len(read)):
-                        base = read[base_num]
-                        if base_num >= len(compare):
-                            #num_mismatch = tolerance +1
-                            break
-                        else:
-                            if base != compare[base_num]:
-                                num_mismatch += 1
-                            if num_mismatch > tolerance:
+                    #need to compare the read to each read length section of the reference begining at each start point
+                    for strt in starts:
+                        num_mismatch = 0
+                        compare = des_FA[idx_count][strt:strt+len(read)] 
+                        for base_num in range(len(read)):
+                            base = read[base_num]
+                            if base_num >= len(compare):
+                                #num_mismatch = tolerance +1
                                 break
+                            else:
+                                if base != compare[base_num]:
+                                    num_mismatch += 1
+                                if num_mismatch > tolerance:
+                                    break
                     if num_mismatch <= tolerance and which_read not in good_reads:
                         des_count = des_count + 1
                         in_des = 1
@@ -98,8 +100,9 @@ def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired ref
                         if which_read in unassigned_reads:
                             unassigned_reads.remove(which_read)
                         break
-
+            idx_count += 1
 #check for each contaminant reference genome provided
+        count = 0
         for cont_idx in cont_idxs:
             if in_des != 1:
                 kmer_locs = []
@@ -114,7 +117,7 @@ def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired ref
                         #need to compare the read to each read length section of the reference begining at each start point
                     for strt in new_starts:
                         num_mismatch = 0
-                        compare = cont_FA[0][strt:strt+len(read)]
+                        compare = cont_FA[count][strt:strt+len(read)]
                         for base_num in range(len(read)):
                             base = read[base_num]
                         #to prevent checking  past edge of reference
@@ -135,7 +138,7 @@ def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired ref
                     if which_read in unassigned_reads:
                         unassigned_reads.remove(which_read)
                     break
-
+            count += 1
         #check if the read was unassigned to either a desired or contamination
         if in_des == 0 and in_cont == 0:
             unas_count = unas_count + 1
