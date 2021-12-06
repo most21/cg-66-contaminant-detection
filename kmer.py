@@ -51,9 +51,13 @@ def kmer_engine(FQ, des_ref, cont_refs, k = 10, tolerance = 5): #requires the de
     unassigned_reads = [] #keep track of which reads have been assigned to what
     good_reads = []
     cont_reads = []
-    for read in FQ:
+    count_good = []
+    count_cont = []
+    
+    for entry in FQ:
+        read = entry['seq']
         which_read += 1
-        unassigned_reads.append(FQ[which_read - 1])
+        
         #keep track of where each read has been assigned
         in_des = 0
         in_cont = 0
@@ -94,12 +98,13 @@ def kmer_engine(FQ, des_ref, cont_refs, k = 10, tolerance = 5): #requires the de
                                 if num_mismatch > tolerance:
                                     break
                      #add aligned reads to the dictionary to output
-                    if num_mismatch <= tolerance and FQ[which_read-1] not in good_reads:
+                    if num_mismatch <= tolerance and which_read-1 not in count_good:
                         des_count = des_count + 1
                         in_des = 1
+                        count_good.append(which_read-1)
                         good_reads.append(FQ[which_read-1])
-                        if FQ[which_read-1] in unassigned_reads:
-                            unassigned_reads.remove(FQ[which_read-1])
+                        #if FQ[which_read-1] in unassigned_reads:
+                            #unassigned_reads.remove(FQ[which_read-1])
                         break
             idx_count += 1
 #check for each contaminant reference genome provided
@@ -132,16 +137,18 @@ def kmer_engine(FQ, des_ref, cont_refs, k = 10, tolerance = 5): #requires the de
                                     break
 
                     #record reads assigned to a contaminant
-                    if num_mismatch <= tolerance and FQ[which_read-1] not in cont_reads:
+                    if num_mismatch <= tolerance and which_read-1 not in count_cont:
                         cont_count = cont_count + 1
                         in_cont = 1
+                        count_cont.append(which_read-1)
                         cont_reads.append(FQ[which_read-1])
-                        if FQ[which_read-1] in unassigned_reads:
-                            unassigned_reads.remove(FQ[which_read-1])
+                        #if FQ[which_read-1] in unassigned_reads:
+                            #unassigned_reads.remove(FQ[which_read-1])
                         break
             count += 1
         #check if the read was unassigned to either a desired or contamination
         if in_des == 0 and in_cont == 0:
+            unassigned_reads.append(FQ[which_read - 1])
             unas_count = unas_count + 1
 
     #return a list of the counts of reads mapped to the desired reference, a contamination reference, or unassigned
