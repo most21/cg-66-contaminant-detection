@@ -19,7 +19,7 @@ python main.py --cont-ref tinydataexample/Mfermentansbac1_cut.fasta --des-ref ti
 ```
 
 ## Data
-Since we have about 12 GB of data, we are storing all the files in Google Drive at this [link](https://drive.google.com/drive/folders/1MQlJKj1cV6ziyyoWNRC5i00vMFAE5WlQ?usp=sharing). 
-A document explaining the data can be found in the drive and is also linked [here](https://tinyurl.com/3kmn8k3r).
+Since we have about 12 GB of data, we are storing all the files in Google Drive at this [link](https://drive.google.com/drive/folders/1MQlJKj1cV6ziyyoWNRC5i00vMFAE5WlQ?usp=sharing).  
+A document explaining the data can be found in the drive and is also linked [here](https://tinyurl.com/3kmn8k3r).  
 This repository includes a zip folder called tinydataexample.zip, which contains a very small set of files for testing. 
 All our methods can run in a reasonable amount of time on this data.
