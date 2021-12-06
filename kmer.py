@@ -25,7 +25,7 @@ def build_kmer_index(FA, k):
 
 def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired reference to be input as a single fasta file, contaminant can be multi fasta
     #Inputs must be fastq and fasta objects, with integers for k and tolerance
-    """Returns three lists containing which (one-indexed) reads allign to the desired reference, a contaminant reference, or neither"""
+    """Returns three dictionaries containing which reads allign to the desired reference, a contaminant reference, or neither"""
 
     #make indexes from desired references
     otpt = build_kmer_index(des_ref, k)
@@ -53,7 +53,7 @@ def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired ref
     cont_reads = []
     for read in FQ:
         which_read += 1
-        unassigned_reads.append(which_read)
+        unassigned_reads.append(FQ[which_read - 1])
         #keep track of where each read has been assigned
         in_des = 0
         in_cont = 0
@@ -93,12 +93,13 @@ def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired ref
                                     num_mismatch += 1
                                 if num_mismatch > tolerance:
                                     break
-                    if num_mismatch <= tolerance and which_read not in good_reads:
+                     #add aligned reads to the dictionary to output
+                    if num_mismatch <= tolerance and FQ[which_read-1] not in good_reads:
                         des_count = des_count + 1
                         in_des = 1
-                        good_reads.append(which_read)
-                        if which_read in unassigned_reads:
-                            unassigned_reads.remove(which_read)
+                        good_reads.append(FQ[which_read-1])
+                        if FQ[which_read-1] in unassigned_reads:
+                            unassigned_reads.remove(FQ[which_read-1])
                         break
             idx_count += 1
 #check for each contaminant reference genome provided
@@ -131,12 +132,12 @@ def kmer_engine(FQ, des_ref, cont_refs, k, tolerance): #requires the desired ref
                                     break
 
                #record reads assigned to a contaminant
-                if num_mismatch <= tolerance and which_read not in cont_reads:
+                if num_mismatch <= tolerance and FQ[which_read-1] not in cont_reads:
                     cont_count = cont_count + 1
                     in_cont = 1
-                    cont_reads.append(which_read)
-                    if which_read in unassigned_reads:
-                        unassigned_reads.remove(which_read)
+                    cont_reads.append(FQ[which_read-1])
+                    if FQ[which_read-1] in unassigned_reads:
+                        unassigned_reads.remove(FQ[which_read-1])
                     break
             count += 1
         #check if the read was unassigned to either a desired or contamination
