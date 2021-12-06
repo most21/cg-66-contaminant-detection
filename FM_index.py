@@ -9,6 +9,7 @@ Created on Wed Nov 10 17:05:03 2021
 import copy as cp
 import numpy as np
 import math
+from data_utils1 import read_fasta_files, read_fastq_files
 
 def rotations(t):
     ''' Return list of rotations of input string t '''
@@ -321,19 +322,19 @@ def locate_in_template(template, pattern):
     
     
 
-def construct_fm(template, pattern, factor):
+def construct_fm(template, factor):
     b = bwtViaBwm(template)
     m = modifiedRankBWT(b,factor)
-    ranks = queryBWT(pattern, m, b)
+    
     
     sa = final_sa1(suffix_array_inverse(template),factor) 
     tots = totsBWT(b)
     f = firstColMod(tots)
-    return [b, m,ranks,f, sa]
+    return [b, m,f, sa]
 
 
 
-def locate_in_template1(fm):
+def locate_in_template1(fm,pattern):
     '''Function to query the pattern in the template with SA with gaps'''
     """b = bwtViaBwm(template)
     m = modifiedRankBWT(b,factor)
@@ -344,9 +345,12 @@ def locate_in_template1(fm):
     """
     b = fm[0]
     m = fm[1]
-    ranks = fm[2]
-    f = fm[3]
-    sa = fm[4]
+
+    f = fm[2]
+    sa = fm[3]
+    
+    
+    ranks = queryBWT(pattern, m, b)
     actual_indexes = []
 
     
@@ -391,40 +395,66 @@ def locate_in_template1(fm):
     
     
     
-def everything_combined(template, pattern, factor):
+def everything_combined(fastas, fastqs, factor):
     
-    fm = construct_fm(template, pattern, factor)
-    info = locate_in_template1(fm)
-    print("The original template is: %s" % (template))
-    print("The pattern is: %s" % (pattern))
-    print("The positions in the template where pattern occurs: ", info[0])
-    print("The number of pattern occurences: ", info[1])
+    fasta_objects = read_fasta_files(fastas)
+    fastq_objects = read_fastq_files(fastqs)
     
+    fms = []
+    for fasta in fasta_objects:
+        print(fasta)
+        for i,template in enumerate(fasta):
+            #print(template)
+            fms.append([fasta.id[i], construct_fm(template, factor)])
+        
+    for fm in fms:
+        for fastq in fastq_objects:
+            for idx, pattern, _ in fastq('all'):
+                info = locate_in_template1(fm[1],pattern)
+                print("The fasta id: ", fm[0])
+                print("The pattern is: %s" % (idx))
+                print("The positions in the template where pattern occurs: ", info[0])
+                print("The number of pattern occurences: ", info[1])
     
-f = open('tinydataexample/example1.fasta')
-lines = f.readlines()
 
-contents = ''
+        
+        
+        
+        
+    
 
-for i in range(1,len(lines)):
-    contents += lines[i].strip('\n')
+    
+""" 
+
+with open("tinydataexample/example1.fasta", "r") as file:
+    contents = ""
+    for readline in file:
+        if readline[0] != '>':
+            line_strip = readline.replace('\n', "")
+            contents += line_strip
 
 
 t = contents + '$'
+print("READ THE CONTENTS IN")
 
-#ti = "BAAAACTGG$"
-
-patterni = 'GT$'
-
-temp = 'abaaba$'
-
-
-
-print(locate_in_template(t,patterni))
-
+with open("tinydataexample/chr1_Mfermentans_8020_hiseq_reads_tinycut_R1.fastq copy", "r") as file:
+    contents = ""
+    for readline in file:
+        if readline[0] != '>':
+            line_strip = readline.replace('\n', "")
+            contents += line_strip
+"""
 
 
-everything_combined(t,patterni,6)
+
+
+
+
+#print(locate_in_template(t,patterni))
+
+
+
+everything_combined(['tinydataexample/example1.fasta'],['tinydataexample/chr1_Mfermentans_8020_hiseq_reads_tinycut_R1.fastq'],10)
     
 
 
