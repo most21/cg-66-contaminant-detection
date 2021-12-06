@@ -1,4 +1,4 @@
-from dataset import Dataset
+from data_utils.dataset import Dataset
 
 class FASTQ(Dataset):
 
@@ -37,7 +37,7 @@ class FASTQ(Dataset):
     def __init__(self, filename, id=None):
         """ Construct a FASTQ Dataset object using the data in the given file. """
         # Check that filename has a FASTQ extension
-        assert filename.endswith(".fastq")
+        assert filename.endswith(".fastq"), filename
 
         self.filename = filename
         self.id = id if id else filename
