@@ -118,7 +118,22 @@ def final_sa(l):
         ans[l[i]] = i
     return ans  
 
-print(final_sa(suffix_array_inverse("banana$")))
+
+def final_sa1(l,factor):
+    """
+    Inverses sa from above
+    """
+    n = len(l)
+    ans = [0] * n
+    for i in range(n):
+        ans[l[i]] = i
+    dic = {}
+    for i in range(len(ans)):
+        if i % factor == 0:
+            dic[i] = ans[i]
+    return dic
+
+
 
 ######################################
 #Functions I wrote
@@ -131,6 +146,7 @@ def totsBWT(bw):
             tots[c] = 0
         tots[c] += 1
     return tots
+
 
 
 def firstColMod(tots):
@@ -146,7 +162,8 @@ def firstColMod(tots):
 
 
 def modifiedRankBWT(bw,step):
-    tots = totsBWT(b)
+    '''Function that applies the ranking heuristics number 1 and 2 from class'''
+    tots = totsBWT(bw)
     f = firstColMod(tots)
     tots = dict()
     total = 0
@@ -169,7 +186,7 @@ def modifiedRankBWT(bw,step):
         
         for j in f1:
             if j != c:
-                #print(first)
+
                 if len(f1[j]) == 0:
                     if first == False:
                         last_entry_from_main_table = cp.deepcopy(f[j][-1])
@@ -192,31 +209,26 @@ def modifiedRankBWT(bw,step):
        
     return f
 
-t = 'abaabab$'
-b = bwtViaBwm(t)
 
-tots = totsBWT(b)
-#print(ranks)
 
-print(b)
 
-print(firstColMod(tots))
 
 
 
 def find_nearest(array,value):
+    '''Helper function ot find nearest value in the ranking data structure'''
     idx = np.searchsorted(array[:,0], value, side="left")
     
     if idx > 0 and (idx == len(array[:,0]) or math.fabs(value - array[:,0][idx-1]) < math.fabs(value - array[:,0][idx])):
         return array[idx-1]
     else:
         return array[idx]
-    
+                       
     
 
 
 def queryBWT(pattern, index_table, bw):
-    
+    '''Function to return the FM left column indices of where the pattern occurs '''
     # Get the last char of the pattern
     """ Reverse the order of the string for ease"""
     reverse_pattern = pattern[::-1]
@@ -226,18 +238,16 @@ def queryBWT(pattern, index_table, bw):
     """ Start with the 1st char of theis string"""
     starting_char = reverse_pattern[start]
     
-    tots = totsBWT(b)
+    tots = totsBWT(bw)
     f = firstColMod(tots)
-    
-    total = 0
     """ Get the first range of characters from the first column"""
     first_range = f[starting_char]
-    #print(first_range)
+
     final_rank = 0
    
     next_range = range(first_range[0], first_range[1])       
     next_range1 = []
-    #print(next_range)
+
     for k in range(1, len(pattern)):
         start += 1
         """ If there is a next character in the reverse_pattern"""
@@ -247,13 +257,15 @@ def queryBWT(pattern, index_table, bw):
                 # bw is 0-indexed so have to subtract 1
                 """ Goet the next character"""
                 c = reverse_pattern[start]
+
                 i = next_range[j]
-                
+
                 
                 """ Compare the next character with a character at the same index 
                 from BWT. Have to subtract 1 because BWT is 0-indexed."""
                 if bw[i-1] == c:
-                    
+
+                
                     """In the dictonary go to the 'column' of the desired 
                     character and find the nearest available total index"""
                     closest_index = find_nearest(index_table[c], i)
@@ -262,6 +274,7 @@ def queryBWT(pattern, index_table, bw):
                     That will be the actual index of the character."""
                     if closest_index[0] == i:
                         final_rank = closest_index[1]
+                        #print(final_rank)
                     """If the nearest available total index is smaller than 
                     the actual total index, we have to walk down bwt"""
                     
@@ -288,20 +301,114 @@ def queryBWT(pattern, index_table, bw):
                 
             next_range = cp.deepcopy(next_range1)        
             next_range1 = []    
+
             
             
-    return len(next_range)
+    return next_range
+
+
+def locate_in_template(template, pattern):
+    '''Function to query the pattern in the template with SA with no gaps'''
+    b = bwtViaBwm(template)
+    m = modifiedRankBWT(b,3)
+    ranks = queryBWT(pattern, m, b)
+    actual_indexes = []
+    sa = final_sa(suffix_array_inverse(template))
+    for i in range(len(ranks)):
+        actual_indexes.append(sa[ranks[i]-1])
+    return actual_indexes    
+        
+    
+    
 
 
 
 
-   
-#m = modifiedRankBWT(b,3)
 
-#print(m)
+def locate_in_template1(template, pattern, factor):
+    '''Function to query the pattern in the template with SA with gaps'''
+    b = bwtViaBwm(template)
+    m = modifiedRankBWT(b,factor)
+    ranks = queryBWT(pattern, m, b)
+    actual_indexes = []
+    sa = final_sa1(suffix_array_inverse(template),factor) 
+    tots = totsBWT(b)
+    f = firstColMod(tots)
+    
 
-#print(queryBWT("abaa", m, b))
+    for i in range(len(ranks)):
+        
+        if ranks[i]-1 in sa:
+            actual_indexes.append(sa[ranks[i]-1])
+        else:
+            count  = 0
+            transition_index = ranks[i]
+            while transition_index-1 not in sa:
+             
+                ch = b[transition_index-1]
+                closest_index = find_nearest(m[ch], transition_index)
+                final_rank = 0
+                if closest_index[0] == transition_index:
+                    final_rank = closest_index[1]
+                    
+                if closest_index[0] < transition_index:
+                           # Subtract 1 because bw is 0-indexed
+                    closest_in_bw = closest_index[0] 
+                    final_rank = closest_index[1]
+                    for j in range(closest_in_bw, transition_index):
+                        if b[j] == ch:
+                            final_rank += 1       
+                if closest_index[0] > transition_index:
+                           # Subtract 1 because bw is 0-indexed
+                   closest_in_bw = closest_index[0] 
+                   final_rank = closest_index[1]
+                   for j in range(transition_index, closest_in_bw):
+                       if b[j] == ch:
+                           final_rank -= 1    
+ 
+                transition_index = f[ch][0] + final_rank -1
+                count +=1
+            actual_indexes.append((sa[transition_index-1]+count)%len(b))
+            
+    return [actual_indexes, len(ranks)]
+            
+    
+    
+    
+    
+def everything_combined(template, pattern, factor):
+    info = locate_in_template1(template, pattern, factor)
+    print("The original template is: %s" % (template))
+    print("The pattern is: %s" % (pattern))
+    print("The positions in the template where pattern occurs: ", info[0])
+    print("The number of pattern occurences: ", info[1])
+    
+    
+f = open('tinydataexample/example1.fasta')
+lines = f.readlines()
 
+contents = ''
+
+for i in range(1,len(lines)):
+    contents += lines[i].strip('\n')
+
+
+t = contents + '$'
+
+#ti = "BAAAACTGG$"
+
+patterni = 'GT$'
+
+temp = 'abaaba$'
+
+
+
+print(locate_in_template(t,patterni))
+
+
+
+everything_combined(t,patterni,6)
+    
 
 
 
