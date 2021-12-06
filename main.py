@@ -5,7 +5,7 @@ import os
 from data_utils.data_utils import read_fasta_files, read_fastq_files
 
 from kmer import kmer_engine
-from fm import fm_engine
+#from fm import fm_engine
 from smithwaterman import sw_engine
 from minhash import minhash_engine
 
@@ -100,8 +100,8 @@ def main():
         print("Running k-mer index engine...\n")
         results = kmer_engine(FQ, des_FA, cont_FA)
     elif engine == "fm":
-        results = fm_engine(FQ) # TODO: args
-        #raise NotImplementedError("TODO: Implement FM index engine")
+        #results = fm_engine(FQ) # TODO: args
+        raise NotImplementedError("TODO: Implement FM index engine")
     elif engine == "sw":
         print("Running Smith-Waterman engine...\n")
         results = sw_engine(FQ, des_FA, cont_FA)
