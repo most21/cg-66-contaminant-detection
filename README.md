@@ -36,3 +36,20 @@ To get the time results for each engine, we used the Unix time tool and reported
 ```shell
 time python main.py --cont-ref tinydataexample/Mfermentansbac1_cut.fasta --des-ref tinydataexample/noN_chr1_cut.fasta --query tinydataexample/chr1_Mfermentans_8020_hiseq_reads_tinycut_R1.fastq --engine <TODO: engine>
 ```
+
+## Repository Structure
+- `main.py` is the driver script and entry point to our software
+- `kmer.py` contains the code for the k-mer index method
+- `fm.py` contains the code for the FM index method
+- `smithwaterman.py` contains the code for the Smith-Waterman method
+- `minhash.py` contains the code for the MinHash method
+- `data_utils` is a directory containing the supporting tools for working with data
+  - `data_utils/data_utils.py` contains a few key functions to create FASTA/Q objects and load/save Python objects from/to disk
+  - `data_utils/dataset.py` contains an abstract base class for Dataset objects
+  - `data_utils/fasta.py` contains the FASTA class definition
+  - `data_utils/fastq.py` contains the FASTA class definition
+  `data_utils/data_removeNs.py` contains the code to remove no-confidence bases from reads
+- `cache/minhash` is a directory containing MinHash sketches for many of the reference genomes in our dataset
+- `tinydataexample.zip` contains small data files for a working example of our code
+
+A user only needs to download the desired data and run `main.py` with the proper command line arguments to run each of our methods.
