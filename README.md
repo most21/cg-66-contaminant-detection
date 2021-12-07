@@ -5,6 +5,11 @@ Team Members: Eleanor Hilgart, Matthew Ost, Gabe Shatkin, & Alexey Solganik
 Repository link: https://github.com/most21/cg-66-contaminant-detection
 
 ## Install + Run
+- Clone repository:
+```shell
+git clone https://github.com/most21/cg-66-contaminant-detection.git
+```
+
 - Install requirements with pip. The only requirements are Python 3.7+, numpy, xxhash, and [filprofiler](https://pythonspeed.com/fil/docs/index.html).
 ```shell
 pip install -r requirements.txt
