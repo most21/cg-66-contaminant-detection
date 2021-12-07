@@ -1,6 +1,8 @@
 # cg-66-contaminant-detection
-Computational Genomics Final Project - Group 66 - Contaminant Detection  
+Computational Genomics Final Project - Group 66 - Contaminant Detection
 Team Members: Eleanor Hilgart, Matthew Ost, Gabe Shatkin, & Alexey Solganik
+
+Repository link: https://github.com/most21/cg-66-contaminant-detection
 
 ## Install + Run
 - Install requirements with pip. The only requirements are Python 3.7+, numpy, xxhash, and [filprofiler](https://pythonspeed.com/fil/docs/index.html).
