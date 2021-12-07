@@ -48,7 +48,7 @@ time python main.py --cont-ref tinydataexample/Mfermentansbac1_cut.fasta --des-r
   - `data_utils/dataset.py` contains an abstract base class for Dataset objects
   - `data_utils/fasta.py` contains the FASTA class definition
   - `data_utils/fastq.py` contains the FASTA class definition
-  `data_utils/data_removeNs.py` contains the code to remove no-confidence bases from reads
+  - `data_utils/data_removeNs.py` contains the code to remove no-confidence bases from reads
 - `cache/minhash` is a directory containing MinHash sketches for many of the reference genomes in our dataset
 - `tinydataexample.zip` contains small data files for a working example of our code
 
