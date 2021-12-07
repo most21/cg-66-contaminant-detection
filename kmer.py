@@ -1,5 +1,4 @@
-#from data_utils import read_fastq_files
-#from build_kmer_index import build_kmer_index
+
 
 def build_kmer_index(FA, k):
     """ Construct a basic kmer index from an input FASTA file and a kmer length. """
@@ -8,7 +7,7 @@ def build_kmer_index(FA, k):
     idx_list = [] #list to store all the indices created from a multi fastsa file
     FA_list = [] #list to seperately store the FA's from a multi fasta file
     for entry in FA:
-        for frag in entry: # TODO: I (Matthew) added this to support multi-fasta files (data is a list of strings instead of 1 string)
+        for frag in entry:
             idx = {}
             for i in range(len(frag)-k+1):
                 mer = frag[i:i+k]

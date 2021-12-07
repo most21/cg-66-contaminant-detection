@@ -5,7 +5,7 @@ import os
 from data_utils.data_utils import read_fasta_files, read_fastq_files
 
 from kmer import kmer_engine
-#from fm import fm_engine
+from fm import fm_engine
 from smithwaterman import sw_engine
 from minhash import minhash_engine
 
@@ -37,29 +37,6 @@ def get_fasta_files_from_arg(args):
         else:
             raise IOError("Argument is not a file or directory.")
     return files
-
-# def get_size(obj, seen=None):
-#     """
-#         Recursively finds size of objects.
-#         This function is copied verbatim from the starter code in HW3 in EN.601.446/646.Sp21
-#     """
-#     size = sys.getsizeof(obj)
-#     if seen is None:
-#         seen = set()
-#     obj_id = id(obj)
-#     if obj_id in seen:
-#         return 0
-#     # Important mark as seen *before* entering recursion to gracefully handle
-#     # self-referential objects
-#     seen.add(obj_id)
-#     if isinstance(obj, dict):
-#         size += sum([get_size(v, seen) for v in obj.values()])
-#         size += sum([get_size(k, seen) for k in obj.keys()])
-#     elif hasattr(obj, '__dict__'):
-#         size += get_size(obj.__dict__, seen)
-#     elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
-#         size += sum([get_size(i, seen) for i in obj])
-#     return size
 
 def write_clean_fastq_file(filename, results):
     """ Write a FASTQ file without the contamintated reads. """
@@ -100,8 +77,8 @@ def main():
         print("Running k-mer index engine...\n")
         results = kmer_engine(FQ, des_FA, cont_FA)
     elif engine == "fm":
-        #results = fm_engine(FQ) # TODO: args
-        raise NotImplementedError("TODO: Implement FM index engine")
+        print("Running FM index engine...\n")
+        results = fm_engine(des_FA, cont_FA, [FQ]) # TODO: args
     elif engine == "sw":
         print("Running Smith-Waterman engine...\n")
         results = sw_engine(FQ, des_FA, cont_FA)

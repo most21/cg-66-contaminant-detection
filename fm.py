@@ -17,7 +17,6 @@ Created on Wed Nov 10 17:05:03 2021
 import copy as cp
 import numpy as np
 import math
-from data_utils1 import read_fasta_files, read_fastq_files
 
 def rotations(t):
     ''' Return list of rotations of input string t '''
@@ -403,38 +402,38 @@ def locate_in_template1(fm,pattern):
 
 
 
-def fm_engine(fastas, cont_fastas, fastqs, factor):
+def fm_engine(fasta_objects, cont_fasta_objects, fastq_objects, factor=10):
 
-    fasta_objects = read_fasta_files(fastas)
-    cont_fasta_objects = read_fasta_files(cont_fastas)
-    fastq_objects = read_fastq_files(fastqs)
-    
+    #fasta_objects = read_fasta_files(fastas)
+    #cont_fasta_objects = read_fasta_files(cont_fastas)
+    #fastq_objects = read_fastq_files(fastqs)
+
     groupings = {"Desired": [], "Contaminated": [], 'Unassigned': []}
     other = []
-    
+
     fms = []
     for fasta in fasta_objects:
         for i,template in enumerate(fasta):
 
             fms.append([fasta.ids[i], construct_fm(template, factor)])
-            
-    co_fms = []        
+
+    co_fms = []
     for fasta in cont_fasta_objects:
         for i,template in enumerate(fasta):
             co_fms.append([fasta.ids[i], construct_fm(template, factor)])
 
-      
+
     for fm in fms:
         for fastq in fastq_objects:
             for fastq_dict in fastq:
-              
+
                 pattern = fastq_dict['seq']
                 info = locate_in_template1(fm[1],pattern)
                 if info[1]> 0:
                     groupings["Desired"].append(fastq_dict)
                 else:
                     other.append(fastq_dict)
-    
+
     for fm in co_fms:
         for fastq_dict in other:
             pattern = fastq_dict['seq']
@@ -443,12 +442,6 @@ def fm_engine(fastas, cont_fastas, fastqs, factor):
                 groupings["Contaminated"].append(fastq_dict)
             else:
                 groupings["Unassigned"].append(fastq_dict)
-    
-    
-    return groupings              
 
 
-
-
-
-print(fm_engine(['tinydataexample/noN_chr1_cut.fasta'],['tinydataexample/Mfermentansbac1_cut.fasta.fasta'],['tinydataexample/chr1_Mfermentans_8020_hiseq_reads_tinycut_R1.fastq'],10))
+    return groupings
